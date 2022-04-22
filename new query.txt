@@ -1,0 +1,125 @@
+CREATE TABLE users(
+ User_Id number(10) CONSTRAINTS user_id_pk PRIMARY KEY,
+ FName varchar2(20) NOT NULL ,
+ LName varchar2(20), 
+ Phone_no number(10) CONSTRAINTS phone_no_uk UNIQUE, 
+ Email_Id varchar2(20) CONSTRAINTS email_id_uk UNIQUE not null, 
+ Password varchar2(10) NOT NULL,
+ User_type Varchar2(20)
+);
+  
+
+CREATE sequence users_seq start with 1000 increment by 1;
+
+CREATE or replace trigger users_trg before insert on users for each row when (new.user_id is null) begin select users_seq.nextval into :new.user_id from dual; 
+end;
+/
+
+insert into users (fname, lname, phone_no, email_id, password,user_type) values ('John','Colbert',9635825056, 'john@gmail.com','rgchygd','1');
+insert into users (fname, lname, phone_no, email_id, password,user_type) values ('Keanu','Reeves',1234567890,'Nkr@gmail.com','Daisy7','1');
+insert into users (fname, lname, phone_no, email_id, password,user_type) values ('Amy','Dunne',678534918, 'authamy@gmail.com','trustamy','1');
+insert into users (fname, lname, phone_no, email_id, password,user_type) values ('Michael','Morbius',7772345899, 'drmorbius@gmail.com','sunlight','1');
+
+
+CREATE TABLE Profile( 
+User_Id number(10),
+DOB DATE, 
+Gender varchar2(10),
+Age number(5),
+Country varchar2(20), 
+State varchar2(20), 
+City varchar2(20),
+Address varchar2(20), 
+Pincode number(10), 
+CONSTRAINT user_id_fk FOREIGN KEY (user_Id) references users(user_id));
+
+insert into profile(USER_ID,DOB,GENDER,AGE,COUNTRY,STATE,CITY,ADDRESS,PINCODE) values (1020,'09-Sep-1999','male',23,'India','Karanataka','Bangalore','kadur',577548);
+insert into profile(USER_ID,DOB,GENDER,AGE,COUNTRY,STATE,CITY,ADDRESS,PINCODE) values (1021,'07-Jul-1999','male',22,'India','Maharashtra','Mumbai','Bandra',400050);
+insert into profile(USER_ID,DOB,GENDER,AGE,COUNTRY,STATE,CITY,ADDRESS,PINCODE) values (1022,'27-Jan-1979','female',43,'India','Maharashtra','Mumbai','Colaba',400005);
+insert into profile(USER_ID,DOB,GENDER,AGE,COUNTRY,STATE,CITY,ADDRESS,PINCODE) values (1023,'26-Dec-1971','male',50,'India','Karanataka','Bangalore','koramangala',577548);
+
+CREATE TABLE Product(
+Productid number(10) CONSTRAINTS product_id_pk PRIMARY KEY,
+Productname Varchar(100) Not Null,
+Price Numeric(6,2) Not Null, 
+Stock Varchar(5),
+Author Varchar(20),
+Category Varchar(107),
+Language Varchar(20) not null,
+Edition Varchar(20),
+Publisher Varchar(20),
+Product_img BLOB);
+
+CREATE sequence product_seq start with 2000 increment by 1;
+
+CREATE or replace trigger product_trg before insert on product for each row when (new.productid is null) begin select product_seq.nextval into :new.productid from dual; end; /
+
+insert into product (PRODUCTNAME,PRICE, STOCK, AUTHOR, CATEGORY, LANGUAGE, EDITION)  values ('Wings of fire',250,50,'A.P.J. Abdul Kalam', 'biography','English','3rd');
+insert into product (PRODUCTNAME,PRICE, STOCK, AUTHOR, CATEGORY, LANGUAGE, EDITION)  values ('Harry Potter',399,20,'J.K.Rowling,'Fantasy','English','1st');
+insert into product (PRODUCTNAME,PRICE, STOCK, AUTHOR, CATEGORY, LANGUAGE, EDITION)  values ('The Lords of the Rings',670, 12,'J. R. R. Tolkien', 'Fantasy', 'English', '1st');
+
+select productid,PRODUCTNAME,PRICE, STOCK, AUTHOR, CATEGORY, LANGUAGE, EDITION from product;
+
+CREATE TABLE Coupon(
+Coupon_id number(10) CONSTRAINTS coupon_id_pk PRIMARY KEY,
+Coupon_name Varchar(10) Not Null,
+Coupon_desc Varchar(100), 
+discount NUMBER(5) not null,
+Status Varchar(10) not null,
+Created_at date, 
+expired_at date);
+
+CREATE sequence coupon_seq start with 3000 increment by 1;
+
+CREATE or replace trigger coupon_trg before insert on coupon for each row when (new.coupon_id is null) begin select coupon_seq.nextval into :new.coupon_id from dual; 
+end;
+/
+
+insert into coupon(COUPON_NAME,COUPON_DESC,DISCOUNT,STATUS) values ('ugadi30','ugadi offer',30,'active');
+
+select COUPON_NAME,COUPON_DESC,DISCOUNT,STATUS,coupon_id from coupon;
+
+ CREATE TABLE review(
+ productId number(10),
+user_id number(10),
+rating float(10),
+feedback varchar2(100),
+CONSTRAINT user_id1_fk FOREIGN KEY (user_Id) references users(user_id),
+CONSTRAINT product_id_fk FOREIGN KEY (productid) references product(productid));
+
+insert into review(productid,user_id,rating) values (2000,1000,4.5);
+
+select productid,user_id,rating from review;
+
+CREATE TABLE cart(
+productId number(10),
+user_id number(10),
+quantity number(10),
+price number(6,2),
+CONSTRAINT user_id2_fk FOREIGN KEY (user_Id) references users(user_id),
+CONSTRAINT product_id1_fk FOREIGN KEY (productid) references product(productid));
+
+insert into cart(productid,user_id,quantity,price) values (2000,1000,1,250);
+
+select productid,user_id,quantity,price from cart;
+
+CREATE TABLE orders(
+order_id number(10) CONSTRAINTS order_id_pk PRIMARY KEY,
+productId number(10),
+user_id number(10),
+coupon_id number(10),
+quantity number(10),
+price number(8),
+total_amount number(10),
+order_date date,
+delivery_date date,
+status varchar2(20),
+CONSTRAINT user_id3_fk FOREIGN KEY (user_Id) references users(user_id),
+CONSTRAINT product_id2_fk FOREIGN KEY (productid) references product(productid),
+CONSTRAINT coupon_id_fk FOREIGN KEY (coupon_Id) references coupon(coupon_id));
+
+CREATE sequence orders_seq start with 4000 increment by 1;
+
+CREATE or replace trigger orders_trg before insert on orders for each row when (new.order_id is null) begin select orders_seq.nextval into :new.order_id from dual; 
+end;
+ /
